@@ -11,6 +11,8 @@ class LanguagePack::Ruby < LanguagePack::Base
   BUNDLER_GEM_PATH    = "bundler-#{BUNDLER_VERSION}"
   NODE_VERSION        = "0.4.7"
   NODE_JS_BINARY_PATH = "node-#{NODE_VERSION}"
+  IMAGEMAGICK_VERSION = "6.7.7-10"
+  IMAGEMAGICK_URL = "https://s3.amazonaws.com/12spokes/ImageMagick-#{IMAGEMAGICK_VERSION}.tgz"
 
   # detects if this is a valid Ruby app
   # @return [Boolean] true if it's a Ruby app
@@ -47,6 +49,7 @@ class LanguagePack::Ruby < LanguagePack::Base
     Dir.chdir(build_path)
     remove_vendor_bundle
     install_ruby
+    install_imagemagick
     setup_language_pack_environment
     allow_git do
       install_language_pack_gems
@@ -81,6 +84,10 @@ private
   # @return [String] resulting path
   def build_ruby_path
     "/tmp/#{ruby_version}"
+  end
+
+  def slug_imagemagick_path
+    "vendor/imagemagick"
   end
 
   # fetch the ruby version from bundler
@@ -163,7 +170,7 @@ private
       ENV[key] ||= value
     end
     ENV["GEM_HOME"] = slug_vendor_base
-    ENV["PATH"]     = "#{ruby_install_binstub_path}:#{config_vars["PATH"]}"
+    ENV["PATH"]     = "/app/vendor/imagemagick/bin:#{ruby_install_binstub_path}:#{config_vars["PATH"]}"
   end
 
   # determines if a build ruby is required
@@ -211,6 +218,20 @@ ERROR
       puts  "WARNING: RUBY_VERSION support has been deprecated and will be removed entirely on August 1, 2012."
       puts  "See https://devcenter.heroku.com/articles/ruby-versions#selecting_a_version_of_ruby for more information."
     end
+
+    true
+  end
+
+  # install imagemagick
+  # @return [Boolean] true if it installs imagemagick and false otherwise
+  def install_imagemagick
+    topic "Installing ImageMagick #{IMAGEMAGICK_VERSION}"
+
+    FileUtils.mkdir_p(slug_imagemagick_path)
+    Dir.chdir(slug_imagemagick_path) do
+      run("curl #{IMAGEMAGICK_URL} -s -o - | tar zxf -")
+    end
+    error "Error installing ImageMagick" unless $?.success?
 
     true
   end
@@ -341,7 +362,7 @@ ERROR
         pwd            = run("pwd").chomp
         # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
         # codon since it uses bundler.
-        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\""
+        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" PATH=/app/vendor/imagemagick/bin:$PATH"
         puts "Running: #{bundle_command}"
         bundler_output << pipe("#{env_vars} #{bundle_command} --no-clean 2>&1")
 

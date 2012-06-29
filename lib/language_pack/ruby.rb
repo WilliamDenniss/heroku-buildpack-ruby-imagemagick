@@ -234,6 +234,12 @@ ERROR
     end
     error "Error installing ImageMagick" unless $?.success?
 
+    bin_dir = "bin"
+    FileUtils.mkdir_p bin_dir
+    Dir["#{slug_imagemagick_path}/bin/*"].each do |bin|
+      run("ln -s ../#{bin} #{bin_dir}")
+    end
+    
     true
   end
 

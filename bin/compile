@@ -19,5 +19,6 @@ $stdout.flush
 
 FileUtils.mkdir_p IMAGEMAGICK_DIR
 Dir.chdir(IMAGEMAGICK_DIR) do
-  %x{ "curl --silent --max-time 60 --location \"#{IMAGEMAGICK_URL}\" | tar xz" 2>&1 }
+  command = "curl #{IMAGEMAGICK_URL} -s -o - | tar zxf -"
+  %x{ #{command} 2>&1 }
 end

@@ -3,8 +3,8 @@
 $:.unshift File.expand_path("../../lib", __FILE__)
 require "language_pack"
 
+ENV["PATH"] = "vendor/imagemagick/bin:#{ENV["PATH"]}"
+
 if pack = LanguagePack.detect(ARGV[0], ARGV[1])
   puts pack.release
 end
-
-ENV["PATH"] = "vendor/imagemagick/bin:#{ENV["PATH"]}"

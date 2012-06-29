@@ -8,3 +8,16 @@ if pack = LanguagePack.detect(ARGV[0], ARGV[1])
     pack.compile
   end
 end
+
+# Install ImageMagick
+IMAGEMAGICK_VERSION = "6.7.7-10"
+IMAGEMAGICK_URL = "https://s3.amazonaws.com/12spokes/ImageMagick-#{IMAGEMAGICK_VERSION}.tar.gz"
+IMAGEMAGICK_DIR = "vendor/imagemagick"
+
+Kernel.puts "-----> Installing ImageMagick #{IMAGEMAGICK_VERSION}"
+$stdout.flush
+
+FileUtils.mkdir_p IMAGEMAGICK_DIR
+Dir.chdir(IMAGEMAGICK_DIR) do
+  %x{ "curl --silent --max-time 60 --location \"#{IMAGEMAGICK_URL}\" | tar xz" 2>&1 }
+end

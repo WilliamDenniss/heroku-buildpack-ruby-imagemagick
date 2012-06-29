@@ -87,7 +87,7 @@ private
   end
 
   def slug_imagemagick_path
-    "vendor/imagemagick"
+    "vendor/ImageMagick-6.7"
   end
 
   # fetch the ruby version from bundler
@@ -170,7 +170,7 @@ private
       ENV[key] ||= value
     end
     ENV["GEM_HOME"] = slug_vendor_base
-    ENV["PATH"]     = "/app/vendor/imagemagick/bin:#{ruby_install_binstub_path}:#{config_vars["PATH"]}"
+    ENV["PATH"]     = "/app/vendor/ImageMagick-6.7/bin:#{ruby_install_binstub_path}:#{config_vars["PATH"]}"
   end
 
   # determines if a build ruby is required
@@ -362,7 +362,7 @@ ERROR
         pwd            = run("pwd").chomp
         # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
         # codon since it uses bundler.
-        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" PATH=/app/vendor/imagemagick/bin:$PATH"
+        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" PATH=/app/vendor/ImageMagick-6.7/bin:$PATH"
         puts "Running: #{bundle_command}"
         bundler_output << pipe("#{env_vars} #{bundle_command} --no-clean 2>&1")
 

@@ -2,10 +2,11 @@
 
 $:.unshift File.expand_path("../../lib", __FILE__)
 require "language_pack"
+require "fileutils"
 
 # Install ImageMagick
 IMAGEMAGICK_VERSION = "6.7.7-10"
-IMAGEMAGICK_URL = "https://s3.amazonaws.com/12spokes/ImageMagick-#{IMAGEMAGICK_VERSION}.tar.gz"
+IMAGEMAGICK_URL = "https://s3.amazonaws.com/12spokes/ImageMagick-#{IMAGEMAGICK_VERSION}.tgz"
 IMAGEMAGICK_DIR = "/app/vendor/imagemagick"
 
 Kernel.puts "-----> Installing ImageMagick #{IMAGEMAGICK_VERSION}"

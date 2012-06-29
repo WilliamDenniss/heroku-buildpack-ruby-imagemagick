@@ -165,12 +165,13 @@ private
   # sets up the environment variables for the build process
   def setup_language_pack_environment
     setup_ruby_install_env
+    setup_imagemagick_install_env
 
     config_vars = default_config_vars.each do |key, value|
       ENV[key] ||= value
     end
     ENV["GEM_HOME"] = slug_vendor_base
-    ENV["PATH"]     = "/app/vendor/ImageMagick-6.7/bin:#{ruby_install_binstub_path}:#{config_vars["PATH"]}"
+    ENV["PATH"]     = "#{ruby_install_binstub_path}:#{config_vars["PATH"]}"
   end
 
   # determines if a build ruby is required
@@ -249,6 +250,10 @@ ERROR
       end
   end
 
+  def imagemagick_install_binstub_path
+    "#{slug_imagemagick_path}/bin"
+  end
+
   # setup the environment so we can use the vendored ruby
   def setup_ruby_install_env
     ENV["PATH"] = "#{ruby_install_binstub_path}:#{ENV["PATH"]}"
@@ -256,6 +261,10 @@ ERROR
     if ruby_version_jruby?
       ENV['JAVA_OPTS']  = default_java_opts
     end
+  end
+
+  def setup_imagemagick_install_env
+    ENV["PATH"] = "#{imagemagick_install_binstub_path}:#{ENV["PATH"]}"
   end
 
   # list of default gems to vendor into the slug
@@ -362,7 +371,7 @@ ERROR
         pwd            = run("pwd").chomp
         # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
         # codon since it uses bundler.
-        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" PATH=/app/vendor/ImageMagick-6.7/bin:$PATH"
+        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\""
         puts "Running: #{bundle_command}"
         bundler_output << pipe("#{env_vars} #{bundle_command} --no-clean 2>&1")
 

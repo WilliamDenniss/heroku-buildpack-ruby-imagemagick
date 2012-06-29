@@ -3,12 +3,6 @@
 $:.unshift File.expand_path("../../lib", __FILE__)
 require "language_pack"
 
-if pack = LanguagePack.detect(ARGV[0], ARGV[1])
-  pack.log("compile") do
-    pack.compile
-  end
-end
-
 # Install ImageMagick
 IMAGEMAGICK_VERSION = "6.7.7-10"
 IMAGEMAGICK_URL = "https://s3.amazonaws.com/12spokes/ImageMagick-#{IMAGEMAGICK_VERSION}.tar.gz"
@@ -21,4 +15,10 @@ FileUtils.mkdir_p IMAGEMAGICK_DIR
 Dir.chdir(IMAGEMAGICK_DIR) do
   command = "curl #{IMAGEMAGICK_URL} -s -o - | tar zxf -"
   %x{ #{command} 2>&1 }
+end
+
+if pack = LanguagePack.detect(ARGV[0], ARGV[1])
+  pack.log("compile") do
+    pack.compile
+  end
 end

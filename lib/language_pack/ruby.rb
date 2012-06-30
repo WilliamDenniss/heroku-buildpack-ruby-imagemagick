@@ -11,7 +11,7 @@ class LanguagePack::Ruby < LanguagePack::Base
   BUNDLER_GEM_PATH    = "bundler-#{BUNDLER_VERSION}"
   NODE_VERSION        = "0.4.7"
   NODE_JS_BINARY_PATH = "node-#{NODE_VERSION}"
-  IMAGEMAGICK_VERSION = "6.7.7-10"
+  IMAGEMAGICK_VERSION = "6.7.8-0"
   IMAGEMAGICK_URL = "https://s3.amazonaws.com/12spokes/ImageMagick-#{IMAGEMAGICK_VERSION}.tgz"
 
   # detects if this is a valid Ruby app
@@ -239,7 +239,7 @@ ERROR
     Dir["#{slug_imagemagick_path}/bin/*"].each do |bin|
       run("ln -s ../#{bin} #{bin_dir}")
     end
-    
+
     true
   end
 

@@ -254,7 +254,7 @@ ERROR
     error "Error installing libpng" unless $?.success?
 
     Dir["#{slug_libpng_path}/lib/*"].each do |lib|
-      run("ln -s ../#{lib} #{slug_imagemagick_path}/lib")
+      run("ln -s /app/#{lib} #{slug_imagemagick_path}/lib")
     end
 
     true

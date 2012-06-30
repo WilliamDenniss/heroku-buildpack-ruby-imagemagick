@@ -13,6 +13,8 @@ class LanguagePack::Ruby < LanguagePack::Base
   NODE_JS_BINARY_PATH = "node-#{NODE_VERSION}"
   IMAGEMAGICK_VERSION = "6.7.8-0"
   IMAGEMAGICK_URL = "https://s3.amazonaws.com/12spokes/ImageMagick-#{IMAGEMAGICK_VERSION}.tgz"
+  LIBPNG_VERSION = "1.5.11"
+  LIBPNG_URL = "https://s3.amazonaws.com/12spokes/libpng-#{LIBPNG_VERSION}.tgz"
 
   # detects if this is a valid Ruby app
   # @return [Boolean] true if it's a Ruby app
@@ -88,6 +90,10 @@ private
 
   def slug_imagemagick_path
     "vendor/ImageMagick-#{IMAGEMAGICK_VERSION}"
+  end
+
+  def slug_libpng_path
+    "vendor/libpng-#{LIBPNG_VERSION}"
   end
 
   # fetch the ruby version from bundler
@@ -228,8 +234,8 @@ ERROR
   def install_imagemagick
     topic "Installing ImageMagick #{IMAGEMAGICK_VERSION}"
 
-    FileUtils.mkdir_p(slug_imagemagick_path)
-    Dir.chdir(slug_imagemagick_path) do
+    FileUtils.mkdir_p slug_imagemagick_path
+    Dir.chdir slug_imagemagick_path do
       run("curl #{IMAGEMAGICK_URL} -s -o - | tar zxf -")
     end
     error "Error installing ImageMagick" unless $?.success?
@@ -238,6 +244,17 @@ ERROR
     FileUtils.mkdir_p bin_dir
     Dir["#{slug_imagemagick_path}/bin/*"].each do |bin|
       run("ln -s ../#{bin} #{bin_dir}")
+    end
+
+    # Include libpng
+    FileUtils.mkdir_p slug_libpng_path
+    Dir.chdir slug_libpng_path do
+      run("curl #{LIBPNG_URL} -s -o - | tar zxf -")
+    end
+    error "Error installing libpng" unless $?.success?
+
+    Dir["#{slug_libpng_path}/lib/*"].each do |lib|
+      run("ln -s ../#{lib} #{slug_imagemagick_path}/lib")
     end
 
     true

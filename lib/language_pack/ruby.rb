@@ -391,8 +391,8 @@ ERROR
         # need to setup compile environment for the psych gem
         yaml_include   = File.expand_path("#{libyaml_dir}/include")
         yaml_lib       = File.expand_path("#{libyaml_dir}/lib")
-        imagemagick_include = File.expand_path("#{slug_imagemagick_path}/include")
-        imagemagick_lib = File.expand_path("#{slug_imagemagick_path}/lib")
+        imagemagick_include = "/app/#{slug_imagemagick_path}/include"
+        imagemagick_lib = "/app/#{slug_imagemagick_path}/lib"
         pwd            = run("pwd").chomp
         # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
         # codon since it uses bundler.

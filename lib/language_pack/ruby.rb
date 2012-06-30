@@ -87,7 +87,7 @@ private
   end
 
   def slug_imagemagick_path
-    "vendor/ImageMagick-6.7"
+    "vendor/ImageMagick-#{IMAGEMAGICK_VERSION}"
   end
 
   # fetch the ruby version from bundler

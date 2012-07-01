@@ -399,6 +399,9 @@ ERROR
         env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" CFLAGS=\"-fopenmp -I#{imagemagick_include}\" CPPFLAGS=\"-fopenmp -I#{imagemagick_include}\" LDFLAGS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib}\" LIBS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib}\""
         puts "Running: #{bundle_command}"
         puts "with env_vars: #{env_vars}"
+        puts "PATH: #{`env echo $PATH`}"
+        puts "IM lib contents: #{`env ls /app/vendor/ImageMagick-6.7.8-0/lib`}"
+        puts "syck_hack: #{syck_hack}"
         bundler_output << pipe("#{env_vars} #{bundle_command} --no-clean 2>&1")
 
       end

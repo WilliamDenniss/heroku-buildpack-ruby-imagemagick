@@ -254,7 +254,7 @@ ERROR
     error "Error installing libpng" unless $?.success?
 
     Dir["#{slug_libpng_path}/lib/*"].each do |lib|
-      run("ln -s /app/#{lib} #{slug_imagemagick_path}/lib")
+      run("ln -s ../../../#{lib} #{slug_imagemagick_path}/lib")
     end
 
     true
@@ -391,8 +391,8 @@ ERROR
         # need to setup compile environment for the psych gem
         yaml_include   = File.expand_path("#{libyaml_dir}/include")
         yaml_lib       = File.expand_path("#{libyaml_dir}/lib")
-        imagemagick_include = "/app/#{slug_imagemagick_path}/include/ImageMagick"
-        imagemagick_lib = "/app/#{slug_imagemagick_path}/lib"
+        imagemagick_include = "#{pwd}/#{slug_imagemagick_path}/include/ImageMagick"
+        imagemagick_lib = "#{pwd}/#{slug_imagemagick_path}/lib"
         pwd            = run("pwd").chomp
         # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
         # codon since it uses bundler.
@@ -400,8 +400,7 @@ ERROR
         puts "Running: #{bundle_command}"
         puts "with env_vars: #{env_vars}"
         puts "PATH: #{`env echo $PATH`}"
-        puts "IM lib contents: #{`env ls /app/vendor/ImageMagick-6.7.8-0/lib`}"
-        puts "syck_hack: #{syck_hack}"
+        puts "IM lib contents: #{`env ls #{pwd}/vendor/ImageMagick-6.7.8-0/lib`}"
         bundler_output << pipe("#{env_vars} #{bundle_command} --no-clean 2>&1")
 
       end

@@ -393,10 +393,12 @@ ERROR
         yaml_lib       = File.expand_path("#{libyaml_dir}/lib")
         imagemagick_include = File.expand_path("#{slug_imagemagick_path}/include/ImageMagick")
         imagemagick_lib = File.expand_path("#{slug_imagemagick_path}/lib")
+        app_imagemagick_lib = "/app/#{slug_imagemagick_path}/lib"
+
         pwd            = run("pwd").chomp
         # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
         # codon since it uses bundler.
-        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" CFLAGS=\"-fopenmp -I#{imagemagick_include}\" CPPFLAGS=\"-fopenmp -I#{imagemagick_include}\" LDFLAGS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib}\" LIBS=\"-L#{imagemagick_lib}\""
+        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" CFLAGS=\"-fopenmp -I#{imagemagick_include}\" CPPFLAGS=\"-fopenmp -I#{imagemagick_include}\" LDFLAGS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib} -L#{app_imagemagick_lib} -Wl,-R#{app_imagemagick_lib}\" LIBS=\"-L#{imagemagick_lib} -L#{app_imagemagick_lib}\""
         puts "Running: #{bundle_command}"
         puts "with env_vars: #{env_vars}"
         puts "PATH: #{`env echo $PATH`}"

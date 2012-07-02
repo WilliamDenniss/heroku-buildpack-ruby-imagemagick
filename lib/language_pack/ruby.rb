@@ -396,7 +396,7 @@ ERROR
         pwd            = run("pwd").chomp
         # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
         # codon since it uses bundler.
-        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" CFLAGS=\"-fopenmp -I#{imagemagick_include}\" CPPFLAGS=\"-fopenmp -I#{imagemagick_include}\" LDFLAGS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib}\" LIBS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib}\""
+        env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" CFLAGS=\"-fopenmp -I#{imagemagick_include}\" CPPFLAGS=\"-fopenmp -I#{imagemagick_include}\" LDFLAGS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib}\" LIBS=\"-L#{imagemagick_lib}\""
         puts "Running: #{bundle_command}"
         puts "with env_vars: #{env_vars}"
         puts "PATH: #{`env echo $PATH`}"

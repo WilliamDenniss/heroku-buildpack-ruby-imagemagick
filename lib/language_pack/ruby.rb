@@ -289,6 +289,12 @@ ERROR
       run("ln -s ../#{bin} #{bin_dir}")
     end
 
+	lib_dir = "lib"
+	FileUtils.mkdir_p lib_dir
+	Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
+		  run("ln -sf ../#{lib} #{lib_dir}")
+	end
+
     # Include libpng
     FileUtils.mkdir_p slug_libpng_path
     Dir.chdir slug_libpng_path do

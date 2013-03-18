@@ -303,7 +303,7 @@ ERROR
     lib_dir = "lib"
     FileUtils.mkdir_p lib_dir
     Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
-      run("ln -sf ../#{lib} #{lib_dir}")
+      run("ln -sf /usr/lib/#{lib} #{lib_dir}")
     end
 
     # Include libpng

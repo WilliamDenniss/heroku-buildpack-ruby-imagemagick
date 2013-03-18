@@ -73,6 +73,7 @@ class LanguagePack::Ruby < LanguagePack::Base
   def compile
     Dir.chdir(build_path)
     remove_vendor_bundle
+    uninstall_rmagick
     install_imagemagick
     install_ruby
     install_jvm
@@ -272,16 +273,12 @@ ERROR
     true
   end
 
-  def update_rmagick
+  def uninstall_rmagick
     puts "uninstalling rmagick"
     run("gem uninstall rmagick")
     puts "uninstalling rmagick 2"
     run("bundle exec gem uninstall rmagick")
-    puts "install rmagick"
-    run("gem install rmagick")
-    run("bundle")
   end
-  
 
   # install imagemagick
   # @return [Boolean] true if it installs imagemagick and false otherwise
@@ -300,12 +297,12 @@ ERROR
       run("ln -s ../#{bin} #{bin_dir}")
     end
 
-    lib_dir = "/usr/lib/"
-    FileUtils.mkdir_p lib_dir
-    Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
-      puts "ln -sf ../#{lib} #{lib_dir}"
-      run("ln -sf ../#{lib} #{lib_dir}")
-    end
+    #lib_dir = "/usr/lib/"
+    #FileUtils.mkdir_p lib_dir
+    #Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
+    #  puts "ln -sf ../#{lib} #{lib_dir}"
+    #  run("ln -sf ../#{lib} #{lib_dir}")
+    #end
 
     # Include libpng
     FileUtils.mkdir_p slug_libpng_path
@@ -483,6 +480,7 @@ ERROR
         # codon since it uses bundler.
         env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\" CFLAGS=\"-fopenmp -I#{imagemagick_include}\" CPPFLAGS=\"-fopenmp -I#{imagemagick_include}\" LDFLAGS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib} -L#{app_imagemagick_lib} -Wl,-R#{app_imagemagick_lib}\" LIBS=\"-L#{imagemagick_lib} -L#{app_imagemagick_lib}\""
         puts "Running: #{bundle_command}"
+        puts "with env_vars: #{env_vars}"
         bundler_output << pipe("#{env_vars} #{bundle_command} --no-clean 2>&1")
 
       end

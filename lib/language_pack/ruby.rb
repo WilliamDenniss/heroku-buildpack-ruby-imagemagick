@@ -74,11 +74,8 @@ class LanguagePack::Ruby < LanguagePack::Base
     Dir.chdir(build_path)
     remove_vendor_bundle
     install_ruby
-<<<<<<< HEAD
     install_imagemagick
-=======
     install_jvm
->>>>>>> upstream/master
     setup_language_pack_environment
     setup_profiled
     allow_git do
@@ -275,7 +272,6 @@ ERROR
     true
   end
 
-<<<<<<< HEAD
   # install imagemagick
   # @return [Boolean] true if it installs imagemagick and false otherwise
   def install_imagemagick
@@ -305,7 +301,8 @@ ERROR
     end
 
     true
-=======
+  end
+
   # vendors JVM into the slug for JRuby
   def install_jvm
     if ruby_version_jruby?
@@ -322,7 +319,6 @@ ERROR
         run("ln -s ../#{bin} #{bin_dir}")
       end
     end
->>>>>>> upstream/master
   end
 
   # find the ruby install path for its binstubs during build

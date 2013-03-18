@@ -300,9 +300,13 @@ ERROR
       run("ln -s ../#{bin} #{bin_dir}")
     end
 
+    run("rm -rf /usr/lib/libMagickWand.so.2.0.1")
+
+
     lib_dir = "lib"
     FileUtils.mkdir_p lib_dir
     Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
+      puts "ln -sf /usr/lib/#{lib} #{lib_dir}"
       run("ln -sf /usr/lib/#{lib} #{lib_dir}")
     end
 

@@ -85,6 +85,7 @@ class LanguagePack::Ruby < LanguagePack::Base
       install_binaries
       run_assets_precompile_rake_task
     end
+    update_rmagick
   end
 
 private
@@ -272,6 +273,16 @@ ERROR
     true
   end
 
+  def update_rmagick
+    puts "uninstalling rmagick"
+    run("gem uninstall rmagick")
+    puts "uninstalling rmagick 2"
+    run("bundle exec gem uninstall rmagick")
+    puts "install rmagick"
+    run("gem install rmagick")
+  end
+  
+
   # install imagemagick
   # @return [Boolean] true if it installs imagemagick and false otherwise
   def install_imagemagick
@@ -289,11 +300,11 @@ ERROR
       run("ln -s ../#{bin} #{bin_dir}")
     end
 
-	lib_dir = "lib"
-	FileUtils.mkdir_p lib_dir
-	Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
-		  run("ln -sf ../#{lib} #{lib_dir}")
-	end
+    lib_dir = "lib"
+    FileUtils.mkdir_p lib_dir
+    Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
+      run("ln -sf ../#{lib} #{lib_dir}")
+    end
 
     # Include libpng
     FileUtils.mkdir_p slug_libpng_path

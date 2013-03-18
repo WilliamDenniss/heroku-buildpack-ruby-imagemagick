@@ -280,6 +280,7 @@ ERROR
     run("bundle exec gem uninstall rmagick")
     puts "install rmagick"
     run("gem install rmagick")
+    run("bundle")
   end
   
 

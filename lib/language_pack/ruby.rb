@@ -303,6 +303,7 @@ ERROR
     lib_dir = "/usr/lib/"
     FileUtils.mkdir_p lib_dir
     Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
+      puts "ln -sf ../#{lib} #{lib_dir}"
       run("ln -sf ../#{lib} #{lib_dir}")
     end
 

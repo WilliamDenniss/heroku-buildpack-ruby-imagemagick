@@ -73,8 +73,8 @@ class LanguagePack::Ruby < LanguagePack::Base
   def compile
     Dir.chdir(build_path)
     remove_vendor_bundle
-    install_ruby
     install_imagemagick
+    install_ruby
     install_jvm
     setup_language_pack_environment
     setup_profiled
@@ -85,7 +85,6 @@ class LanguagePack::Ruby < LanguagePack::Base
       install_binaries
       run_assets_precompile_rake_task
     end
-    update_rmagick
   end
 
 private

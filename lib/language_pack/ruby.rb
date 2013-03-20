@@ -285,6 +285,9 @@ ERROR
   def install_imagemagick
     topic "Installing ImageMagick #{IMAGEMAGICK_VERSION}"
 
+    puts IMAGEMAGICK_URL
+    puts LIBPNG_URL
+
     FileUtils.mkdir_p slug_imagemagick_path
     Dir.chdir slug_imagemagick_path do
       run("curl #{IMAGEMAGICK_URL} -s -o - | tar zxf -")

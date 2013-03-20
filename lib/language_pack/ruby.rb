@@ -17,9 +17,9 @@ class LanguagePack::Ruby < LanguagePack::Base
   NODE_VERSION        = "0.4.7"
   NODE_JS_BINARY_PATH = "node-#{NODE_VERSION}"
   IMAGEMAGICK_VERSION = "6.7.8-0"
-  IMAGEMAGICK_URL = "https://s3.amazonaws.com/12spokes/ImageMagick-#{IMAGEMAGICK_VERSION}.tgz"
+  IMAGEMAGICK_URL = "https://s3.amazonaws.com/geospike-deploy/ImageMagick-#{IMAGEMAGICK_VERSION}.tgz"
   LIBPNG_VERSION = "1.5.11"
-  LIBPNG_URL = "https://s3.amazonaws.com/12spokes/libpng-#{LIBPNG_VERSION}.tgz"
+  LIBPNG_URL = "https://s3.amazonaws.com/geospike-deploy/libpng-#{LIBPNG_VERSION}.tgz"
   JVM_BASE_URL        = "http://heroku-jvm-langpack-java.s3.amazonaws.com"
   JVM_VERSION         = "openjdk7-latest"
 

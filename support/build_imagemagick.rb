@@ -11,16 +11,16 @@
 #        allow access from Heroku instances
 
 require 'fileutils'
-require 'aws'
+require 'fog'
 
-S3_BUCKET = '12spokes'
-IMAGEMAGICK_VERSION = '6.7.8-0'
-LIBPNG_VERSION = '1.5.11'
-ZLIB_VERSION = '1.2.7'
-GHOSTSCRIPT_VERSION = '9.05'
+S3_BUCKET = 'geospike-deploy'
+IMAGEMAGICK_VERSION = '6.8.3-10'
+LIBPNG_VERSION = '1.5.14'
+#ZLIB_VERSION = '1.2.7'
+#GHOSTSCRIPT_VERSION = '9.05'
 
-s3 = AWS::S3.new( :access_key_id => '',
-                  :secret_access_key => '')
+storage = Fog::Storage.new(:provider => 'AWS', :aws_access_key_id => ENV["AWS_ACCESS_KEY_ID"], :aws_secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"])
+directory = storage.directories.get( S3_BUCKET )
 
 # Helper methods
 def run(command)
@@ -39,10 +39,15 @@ Dir.chdir libpng_name do
   puts "Done"
 end
 
-s3.buckets[S3_BUCKET].objects["#{libpng_name}.tgz"].write File.read("/tmp/#{libpng_name}.tgz")
-FileUtils.rm_rf libpng_name if Dir.exists? libpng_name
-
-
+file = directory.files.create(
+  :key    => "#{libpng_name}.tgz",
+  :body   => File.read("/tmp/#{libpng_name}.tgz"),
+  :public => true,
+  :content_type => 'application/x-compressed',
+).save
+        
+#s3.buckets[S3_BUCKET].objects["#{libpng_name}.tgz"].write 
+#FileUtils.rm_rf libpng_name if Dir.exists? libpng_name
 
 # ImageMagick
 imagemagick_name = "ImageMagick-#{IMAGEMAGICK_VERSION}"
@@ -52,10 +57,16 @@ run "tar xvfz ImageMagick.tar.gz"
 
 Dir.chdir imagemagick_name do
   puts "Building #{imagemagick_name}"
-  run "vulcan build --verbose --name #{imagemagick_name} --deps https://s3.amazonaws.com/12spokes/libpng-1.5.11.tgz"
+  run "vulcan build --verbose --name #{imagemagick_name} --deps https://s3.amazonaws.com/#{S3_BUCKET}/#{libpng_name}.tgz"
   puts "Done"
 end
 
-s3.buckets[S3_BUCKET].objects["#{imagemagick_name}.tgz"].write File.read("/tmp/#{imagemagick_name}.tgz")
+#s3.buckets[S3_BUCKET].objects["#{imagemagick_name}.tgz"].write File.read("/tmp/#{imagemagick_name}.tgz")
+file = directory.files.create(
+  :key    => "#{imagemagick_name}.tgz",
+  :body   => File.read("/tmp/#{imagemagick_name}.tgz"),
+  :public => true,
+  :content_type => 'application/x-compressed',
+).save
 
-FileUtils.rm_rf imagemagick_name if Dir.exists? imagemagick_name
+#FileUtils.rm_rf imagemagick_name if Dir.exists? imagemagick_name

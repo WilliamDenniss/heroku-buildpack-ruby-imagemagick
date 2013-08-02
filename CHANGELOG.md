@@ -1,3 +1,58 @@
+## v76 (7/29/2013)
+
+Bugfixes:
+
+* fix request_id for instrumentation to follow standard
+
+## v75 (7/29/2013)
+
+Features:
+
+* add request_id to instrumentation
+* switchover to rubinius hosted rbx binaries
+
+Bugfixes:
+
+* OpenJDK version was rolled back, stop special casing JRuby 1.7.3.
+
+## v74 (7/24/2013)
+
+Bugfixes:
+
+* Lock JRuby 1.7.3 and lower to older version of JDK due to <https://github.com/jruby/jruby/issues/626>
+
+## v73 (7/23/2013)
+
+* Revert to v69 due to asset:precompile bugs
+
+## v72 (7/23/2013)
+
+Bugfixes:
+
+* Fix rake task detection for Rails 3 (@hynkle, #118)
+
+## v71 (7/18/2013)
+
+* Revert to v69 due to asset:precompile bugs
+
+## v70 (7/18/2013)
+
+Bugfixes:
+
+* Don't silently fail rake task checks (@gabrielg, #34)
+
+## v69 (7/16/2013)
+
+Bugfixes:
+
+* Add spacing to end of instrumentation
+
+## v68 (7/16/2013)
+
+Features:
+
+* Log buildpack name and entering rails3/4 compile
+
 ## v67 (7/10/2013)
 
 Features:

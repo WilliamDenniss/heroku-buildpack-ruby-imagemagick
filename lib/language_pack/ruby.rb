@@ -1,4 +1,5 @@
 require "tmpdir"
+require "digest/md5"
 require "rubygems"
 require "language_pack"
 require "language_pack/base"
@@ -9,7 +10,8 @@ class LanguagePack::Ruby < LanguagePack::Base
   include LanguagePack::BundlerLockfile
   extend LanguagePack::BundlerLockfile::ClassMethods
 
-  BUILDPACK_VERSION    = "v67"
+  NAME                 = "ruby"
+  BUILDPACK_VERSION    = "v76"
   LIBYAML_VERSION      = "0.1.4"
   LIBYAML_PATH         = "libyaml-#{LIBYAML_VERSION}"
   BUNDLER_VERSION      = "1.3.2"
@@ -23,6 +25,7 @@ class LanguagePack::Ruby < LanguagePack::Base
   IMAGEMAGICK_URL = "https://s3.amazonaws.com/geospike-deploy/ImageMagick-#{IMAGEMAGICK_VERSION}.tgz"
   LIBPNG_VERSION = "1.5.11"
   LIBPNG_URL = "https://s3.amazonaws.com/geospike-deploy/libpng-#{LIBPNG_VERSION}.tgz"
+  RBX_BASE_URL         = "http://binaries.rubini.us/heroku"
 
   # detects if this is a valid Ruby app
   # @return [Boolean] true if it's a Ruby app
@@ -43,6 +46,7 @@ class LanguagePack::Ruby < LanguagePack::Base
   def initialize(build_path, cache_path=nil)
     super(build_path, cache_path)
     @fetchers[:jvm] = LanguagePack::Fetcher.new(JVM_BASE_URL)
+    @fetchers[:rbx] = LanguagePack::Fetcher.new(RBX_BASE_URL)
   end
 
   def name
@@ -279,7 +283,7 @@ ERROR
       if build_ruby?
         FileUtils.mkdir_p(build_ruby_path)
         Dir.chdir(build_ruby_path) do
-          ruby_vm = ruby_version_rbx? ? "rbx" : "ruby"
+          ruby_vm = "ruby"
           instrument "ruby.fetch_build_ruby" do
             @fetchers[:buildpack].fetch_untar("#{ruby_version.sub(ruby_vm, "#{ruby_vm}-build")}.tgz")
           end
@@ -290,7 +294,29 @@ ERROR
       FileUtils.mkdir_p(slug_vendor_ruby)
       Dir.chdir(slug_vendor_ruby) do
         instrument "ruby.fetch_ruby" do
-          @fetchers[:buildpack].fetch_untar("#{ruby_version}.tgz")
+          if ruby_version_rbx?
+            file     = "#{ruby_version}.tar.bz2"
+            sha_file = "#{file}.sha1"
+            @fetchers[:rbx].fetch(file)
+            @fetchers[:rbx].fetch(sha_file)
+
+            expected_checksum = File.read(sha_file).chomp
+            actual_checksum   = Digest::SHA1.file(file).hexdigest
+
+            error <<-ERROR_MSG unless expected_checksum == actual_checksum
+RBX Checksum for #{file} does not match.
+Expected #{expected_checksum} but got #{actual_checksum}.
+Please try pushing again in a few minutes.
+ERROR_MSG
+
+            run("tar jxf #{file}")
+            FileUtils.mv(Dir.glob("app/#{slug_vendor_ruby}/*"), ".")
+            FileUtils.rm_rf("app")
+            FileUtils.rm(file)
+            FileUtils.rm(sha_file)
+          else
+            @fetchers[:buildpack].fetch_untar("#{ruby_version}.tgz")
+          end
         end
       end
       error invalid_ruby_version_message unless $?.success?

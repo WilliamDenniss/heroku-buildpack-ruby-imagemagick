@@ -22,6 +22,10 @@ class LanguagePack::Ruby < LanguagePack::Base
   JVM_VERSION          = "openjdk7-latest"
   DEFAULT_RUBY_VERSION = "ruby-2.0.0"
   RBX_BASE_URL         = "http://binaries.rubini.us/heroku"
+  IMAGEMAGICK_VERSION = "6.7.8-0"
+  IMAGEMAGICK_URL = "https://s3.amazonaws.com/geospike-deploy/ImageMagick-#{IMAGEMAGICK_VERSION}.tgz"
+  LIBPNG_VERSION = "1.5.11"
+  LIBPNG_URL = "https://s3.amazonaws.com/geospike-deploy/libpng-#{LIBPNG_VERSION}.tgz"
 
   # detects if this is a valid Ruby app
   # @return [Boolean] true if it's a Ruby app
@@ -85,6 +89,8 @@ class LanguagePack::Ruby < LanguagePack::Base
       Dir.chdir(build_path)
       remove_vendor_bundle
       install_ruby
+      uninstall_rmagick
+      install_imagemagick
       install_jvm
       setup_language_pack_environment
       setup_profiled
@@ -104,7 +110,7 @@ private
   # the base PATH environment variable to be used
   # @return [String] the resulting PATH
   def default_path
-    "bin:#{bundler_binstubs_path}:/usr/local/bin:/usr/bin:/bin"
+    "#{imagemagick_install_binstub_path}:bin:#{bundler_binstubs_path}:/usr/local/bin:/usr/bin:/bin"
   end
 
   # the relative path to the bundler directory of gems
@@ -137,6 +143,14 @@ private
   # @return [String] resulting path
   def build_ruby_path
     "/tmp/#{ruby_version}"
+  end
+
+  def slug_imagemagick_path
+    "vendor/ImageMagick-#{IMAGEMAGICK_VERSION}"
+  end
+
+  def slug_libpng_path
+    "vendor/libpng-#{LIBPNG_VERSION}"
   end
 
   # fetch the ruby version from bundler
@@ -224,6 +238,7 @@ private
   def setup_language_pack_environment
     instrument 'ruby.setup_language_pack_environment' do
       setup_ruby_install_env
+      setup_imagemagick_install_env
 
       config_vars = default_config_vars.each do |key, value|
         ENV[key] ||= value
@@ -350,6 +365,51 @@ WARNING
     !File.exist?("vendor/heroku")
   end
 
+  def uninstall_rmagick
+    puts "uninstalling rmagick"
+    run("gem uninstall rmagick")
+    puts "uninstalling rmagick 2"
+    run("bundle exec gem uninstall rmagick")
+  end
+
+  # install imagemagick
+  # @return [Boolean] true if it installs imagemagick and false otherwise
+  def install_imagemagick
+    topic "Installing ImageMagick #{IMAGEMAGICK_VERSION}"
+
+    FileUtils.mkdir_p slug_imagemagick_path
+    Dir.chdir slug_imagemagick_path do
+      run("curl #{IMAGEMAGICK_URL} -s -o - | tar zxf -")
+    end
+    error "Error installing ImageMagick" unless $?.success?
+
+    bin_dir = "bin"
+    FileUtils.mkdir_p bin_dir
+    Dir["#{slug_imagemagick_path}/bin/*"].each do |bin|
+      run("ln -s ../#{bin} #{bin_dir}")
+    end
+
+    #lib_dir = "/usr/lib/"
+    #FileUtils.mkdir_p lib_dir
+    #Dir["#{slug_imagemagick_path}/lib/*"].each do |lib|
+    #  puts "ln -sf ../#{lib} #{lib_dir}"
+    #  run("ln -sf ../#{lib} #{lib_dir}")
+    #end
+
+    # Include libpng
+    FileUtils.mkdir_p slug_libpng_path
+    Dir.chdir slug_libpng_path do
+      run("curl #{LIBPNG_URL} -s -o - | tar zxf -")
+    end
+    error "Error installing libpng" unless $?.success?
+
+    Dir["#{slug_libpng_path}/lib/*"].each do |lib|
+      run("ln -s ../../../#{lib} #{slug_imagemagick_path}/lib")
+    end
+
+    true
+  end
+
   # vendors JVM into the slug for JRuby
   def install_jvm
     instrument 'ruby.install_jvm' do
@@ -383,6 +443,10 @@ WARNING
       end
   end
 
+  def imagemagick_install_binstub_path
+    "#{slug_imagemagick_path}/bin"
+  end
+
   # setup the environment so we can use the vendored ruby
   def setup_ruby_install_env
     instrument 'ruby.setup_ruby_install_env' do
@@ -392,6 +456,10 @@ WARNING
         ENV['JAVA_OPTS']  = default_java_opts
       end
     end
+  end
+
+  def setup_imagemagick_install_env
+    ENV["PATH"] = "#{imagemagick_install_binstub_path}:#{ENV["PATH"]}"
   end
 
   # list of default gems to vendor into the slug
@@ -515,12 +583,22 @@ WARNING
           # need to setup compile environment for the psych gem
           yaml_include   = File.expand_path("#{libyaml_dir}/include")
           yaml_lib       = File.expand_path("#{libyaml_dir}/lib")
+          
+          imagemagick_include = File.expand_path("#{slug_imagemagick_path}/include/ImageMagick")
+          imagemagick_lib = File.expand_path("#{slug_imagemagick_path}/lib")
+          app_imagemagick_lib = "/app/#{slug_imagemagick_path}/lib"
+
+          
           pwd            = run("pwd").chomp
           bundler_path   = "#{pwd}/#{slug_vendor_base}/gems/#{BUNDLER_GEM_PATH}/lib"
           # we need to set BUNDLE_CONFIG and BUNDLE_GEMFILE for
           # codon since it uses bundler.
           env_vars       = "env BUNDLE_GEMFILE=#{pwd}/Gemfile BUNDLE_CONFIG=#{pwd}/.bundle/config CPATH=#{yaml_include}:$CPATH CPPATH=#{yaml_include}:$CPPATH LIBRARY_PATH=#{yaml_lib}:$LIBRARY_PATH RUBYOPT=\"#{syck_hack}\""
           env_vars      += " BUNDLER_LIB_PATH=#{bundler_path}" if ruby_version && ruby_version.match(/^ruby-1\.8\.7/)
+          
+          # image magick
+          env_vars += " CFLAGS=\"-fopenmp -I#{imagemagick_include}\" CPPFLAGS=\"-fopenmp -I#{imagemagick_include}\" LDFLAGS=\"-L#{imagemagick_lib} -Wl,-R#{imagemagick_lib} -L#{app_imagemagick_lib} -Wl,-R#{app_imagemagick_lib}\" LIBS=\"-L#{imagemagick_lib} -L#{app_imagemagick_lib}\""
+
           puts "Running: #{bundle_command}"
           instrument "ruby.bundle_install" do
             bundler_output << pipe("#{env_vars} #{bundle_command} --no-clean 2>&1")
